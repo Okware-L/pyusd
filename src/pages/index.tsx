@@ -1,5 +1,5 @@
 import TransactionFeed from '../components/TransactionFeed';
-import TokenData from '../components/TokenData';
+//import TokenData from '../components/TokenData';
 import CirculatingSupply from '../components/CirculatingSupply';
 import AnalyticsChart from "@/components/AnalyticsChart";
 
@@ -13,7 +13,7 @@ export default function Home() {
         <CirculatingSupply />
       </div>
       <AnalyticsChart/>
-      <TokenData />
+      
     </div>
   );
 }
