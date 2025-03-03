@@ -7,7 +7,7 @@ const bigquery = new BigQuery({
   projectId: process.env.GCP_PROJECT_ID,
 });
 
-// GET endpoint to fetch data from BigQuery
+// endpoint to fetch data from BigQuery
 export default async function handler(req: NextApiRequest, res: NextApiResponse){
   const query = `
     SELECT *
@@ -18,7 +18,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   const [rows] = await bigquery.query(query); 
   
-  console.log('BigQuery response:', rows);
+ // console.log('BigQuery response:', rows);
 
 
   try {
