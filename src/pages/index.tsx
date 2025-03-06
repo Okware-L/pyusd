@@ -3,6 +3,7 @@ import TransactionFeed from '../components/TransactionFeed';
 import CirculatingSupply from '../components/CirculatingSupply';
 import AnalyticsChart from "@/components/AnalyticsChart";
 import { ConnectButton } from '@rainbow-me/rainbowkit';
+import Velocity from "@/components/Velocity";
 
 
 export default function Home() {
@@ -14,7 +15,7 @@ export default function Home() {
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         <TransactionFeed />
-        <CirculatingSupply />
+        <CirculatingSupply /><Velocity />
       </div>
       <AnalyticsChart/>
       
