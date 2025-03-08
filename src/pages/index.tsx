@@ -4,6 +4,8 @@ import CirculatingSupply from '../components/CirculatingSupply';
 import AnalyticsChart from "@/components/AnalyticsChart";
 import { ConnectButton } from '@rainbow-me/rainbowkit';
 import Velocity from "@/components/Velocity";
+import PyUSDTokenData from '@/components/PyUSDTokenData';
+
 
 
 export default function Home() {
@@ -15,7 +17,7 @@ export default function Home() {
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         <TransactionFeed />
-        <CirculatingSupply /><Velocity />
+        <CirculatingSupply /><Velocity /><PyUSDTokenData />
       </div>
       <AnalyticsChart/>
       

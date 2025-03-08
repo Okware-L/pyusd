@@ -1,15 +1,9 @@
 import { NextApiRequest, NextApiResponse } from "next";
-import { parseAbiItem } from "viem";
 import { BigQuery } from "@google-cloud/bigquery";
 import { client } from "../../lib/client";
 
 // PYUSD Token Contract Address
 const PYUSD_ADDRESS = "0x6c3ea9036406852006290770BEdFcAbA0e23A0e8";
-
-// ERC-20 Transfer Event
-const TRANSFER_EVENT = parseAbiItem(
-  "event Transfer(address indexed from, address indexed to, uint256 value)"
-);
 
 // BigQuery Config
 const bigquery = new BigQuery();
@@ -18,29 +12,46 @@ const TABLE_ID = "two";
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   try {
-    console.log("Fetching latest block number...");
+    console.log("Fetching latest block...");
     const latestBlock = await client.getBlockNumber();
     console.log("Latest Block:", latestBlock);
 
-    console.log(`Fetching logs from block ${latestBlock - 10000n} to ${latestBlock}...`);
-    const logs = await client.getLogs({
-      address: PYUSD_ADDRESS,
-      event: TRANSFER_EVENT,
-      fromBlock: latestBlock - 5n,
-      toBlock: latestBlock,
-    });
-    console.log("Fetched Logs:", logs.length, "transactions");
+    // Fetch traces for the latest block (get all transaction-level details)
+    console.log("Fetching transaction traces for block", latestBlock);
+    const traces = await client.request({
+      method: "trace_block",
+      params: [latestBlock.toString()],
+    }as any);
 
-    // Process Transactions
+    // ✅ Ensure traces is not null or undefined
+if (!traces) {
+    console.warn(`No traces found for block ${latestBlock}`);
+    return res.status(200).json({ velocity: 0, activeHolders: 0 });
+  }
+
+  // ✅ Ensure traces is an array before processing
+if (!Array.isArray(traces)) {
+    console.warn(`Unexpected trace_block response type:`, traces);
+    return res.status(200).json({ velocity: 0, activeHolders: 0 });
+  }
+
+    console.log("Total Traces:", traces.length);
+
     let totalTransferred = BigInt(0);
     const uniqueHolders = new Set<string>();
 
-    logs.forEach((log) => {
-      const value = log.args?.value ?? BigInt(0);
-      totalTransferred += value;
-
-      if (log.args?.from) uniqueHolders.add(log.args.from);
-      if (log.args?.to) uniqueHolders.add(log.args.to);
+    // Process Traces: Filter PYUSD Transfers
+    traces.forEach((trace: any) => {
+      if (
+        trace.action?.to?.toLowerCase() === PYUSD_ADDRESS.toLowerCase() &&
+        trace.action?.value
+      ) {
+        const value = BigInt(trace.action.value);
+        totalTransferred += value;
+    
+        if (trace.action.from) uniqueHolders.add(trace.action.from);
+        if (trace.action.to) uniqueHolders.add(trace.action.to);
+      }
     });
 
     console.log("Total PYUSD Transferred:", totalTransferred.toString());
@@ -58,7 +69,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         inputs: [],
       }],
       functionName: "totalSupply",
-    })) as BigInt;
+    })) as bigint;
     console.log("Total Supply:", totalSupply.toString());
 
     // Convert Values to Float
