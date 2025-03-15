@@ -3,8 +3,8 @@ import TransactionFeed from '../components/TransactionFeed';
 import CirculatingSupply from '../components/CirculatingSupply';
 import AnalyticsChart from "@/components/AnalyticsChart";
 import { ConnectButton } from '@rainbow-me/rainbowkit';
-import Velocity from "@/components/Velocity";
-import PyUSDTokenData from '@/components/PyUSDTokenData';
+import PendingTx from '@/components/PendingTx';
+import TxVisualizer from '@/components/TxVisualizer';
 
 
 
@@ -14,10 +14,11 @@ export default function Home() {
       <h1 className="text-3xl font-bold mb-8">PYUSD Analytics Dashboard</h1>
       <div>
         <ConnectButton />
+        <TxVisualizer />
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         <TransactionFeed />
-        <CirculatingSupply /><Velocity /><PyUSDTokenData />
+        <CirculatingSupply /><PendingTx />
       </div>
       <AnalyticsChart/>
       

@@ -23,7 +23,7 @@ export default function TransactionFeed() {
     };
 
     fetchTransactions();
-    const interval = setInterval(fetchTransactions, 1000); // Refresh every 15 seconds
+    const interval = setInterval(fetchTransactions, 1000); 
 
     return () => clearInterval(interval);
   }, []);
