@@ -7,16 +7,55 @@ export const getPendingTransactions = async (blockNumber: bigint) => {
   });
 };
 
+// Define an expected structure for trace transaction response
+type TraceResult = {
+    result?: {
+      gasUsed?: number;
+    };
+  };
 
 // Check transaction execution trace
 export const getTransactionTrace = async (txHash: `0x${string}`) => {
     try {
-      return await client.transport.request({
+      const trace: TraceResult[] = await client.transport.request({
         method: "trace_transaction",
-        params: [txHash]
+        params: [txHash],
       });
+  
+      return {
+        hash: txHash,
+        gasUsed: trace?.[0]?.result?.gasUsed ?? 0, // Safe access
+      };
     } catch (error) {
       console.error("Error tracing transaction:", error);
       return null;
     }
   };
+
+// WebSocket to listen for new transactions
+const alchemyWsUrl = "wss://eth-mainnet.g.alchemy.com/v2/YOUR_ALCHEMY_KEY";
+
+export const listenToNewTransactions = (callback: (tx: any) => void) => {
+  const ws = new WebSocket(alchemyWsUrl);
+
+  ws.onopen = () => {
+    console.log("Connected to Ethereum WebSocket");
+    ws.send(
+      JSON.stringify({
+        jsonrpc: "2.0",
+        id: 1,
+        method: "eth_subscribe",
+        params: ["newPendingTransactions"],
+      })
+    );
+  };
+
+  ws.onmessage = (event) => {
+    const data = JSON.parse(event.data);
+    if (data.params) {
+      callback({ hash: data.params.result, status: "pending" });
+    }
+  };
+
+  return () => ws.close(); // Cleanup WebSocket on unmount
+};
